@@ -458,3 +458,61 @@ class Graph:
             background_color=background_color,
             padding=padding,
         )
+
+    def show_jupyter_widget(
+        self,
+        directed: bool = True,
+        start: str = "#FFDFBA",
+        end: str = "#BAFFC9",
+        node_color=None,
+    ):
+        """
+        Displays a graph visualization in a Jupyter notebook using the yfiles_jupyter_graphs widget.
+
+        @param directed:  whether the edges are directed or not
+        @param start: color of the __start__ node
+        @param end: color of the __end__ node
+        @param node_color: color of all remaining nodes
+
+
+        Notes:
+            - Node and Edge data are imported into the widget
+            - Only executable in a jupyter cell
+
+        Example:
+            >>> graph.get.graph().show_jupyter_widget()
+        """
+        try:
+            from yfiles_jupyter_graphs import GraphWidget
+        except ImportError:
+            raise ImportError(
+                "Please install yfiles_jupyter_graphs to visualize the graph: `pip install yfiles_jupyter_graphs`"
+            )
+        w = GraphWidget()
+        w.nodes = [
+            {"id": node.id, "properties": {"label": node.id, "data": str(node.data)}}
+            for node in self.nodes.values()
+        ]
+        w.edges = [
+            {
+                "start": edge.source,
+                "end": edge.target,
+                "properties": {"data": edge.data, "conditional": edge.conditional},
+            }
+            for edge in self.edges
+        ]
+
+        def color_mapping(node: Dict):
+            match node["id"]:
+                case "__start__":
+                    return start
+                case "__end__":
+                    return end
+                case _:
+                    if node_color is not None:
+                        return node_color
+
+        w.set_node_color_mapping(color_mapping)
+        w.directed = directed
+        w.hierarchic_layout()
+        display(w)
