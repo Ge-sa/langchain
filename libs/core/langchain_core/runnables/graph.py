@@ -459,7 +459,7 @@ class Graph:
             padding=padding,
         )
 
-    def show_jupyter_widget(
+    def show_jupyter_graph(
         self,
         directed: bool = True,
         start: str = "#FFDFBA",
